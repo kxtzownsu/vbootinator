@@ -15,8 +15,8 @@
 		<style>
 			body {
 				font-family: sans-serif;
-				background-color: #282828;
-				color: #f0f0f0;
+				background-color: #1e1e2e;
+				color: #cba6f7;
 				position: absolute;
 				width: calc(100vw - 20px);
 				height: calc(100vh - 20px);
@@ -30,7 +30,7 @@
 			}
 			
 			a {
-				color: #3ec3f0;
+				color: #74c7ec;
 			}
 			
 			p {
@@ -52,6 +52,7 @@
 			code {
 				font-family: monospace;
 				background-color: rgba(200, 200, 200, 0.1);
+				color: #f0f0f0;
 				border-radius: 6px;
 				padding: 8px 16px;
 				margin: 5px 10px 5px 0px;
@@ -62,8 +63,8 @@
 			
 			.title {
 				position: absolute;
-				left: 0px;
-				top: 0px;
+				left: 120px;
+				top: 10px;
 				height: 40px;
 				line-height: 40px;
 				margin: 20px 10px;
@@ -137,7 +138,7 @@
 			}
 			
 			#inputerror {
-				color: #ff8080;
+				color: #9974c7;
 			}
 			
 			.bottomline {
@@ -158,9 +159,34 @@
 					overflow: initial;
 				}
 			}
+
+			.floating-button {
+				z-index: 1;
+    			position: fixed;
+    			top: 20px;
+    			left: 20px;
+    			background-color: #3c3c5b;
+    			color: #cba6f7;
+    			border: none;
+    			padding: 10px 15px;
+    			border-radius: 20%;
+    			cursor: pointer;
+    			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    			font-size: 1.5rem;
+    			display: flex;
+    			align-items: center;
+    			justify-content: center;
+  			}
+
+  			.floating-button::after {
+    			content: '⬅';
+  				color: #cba6f7;
+  			}
 		</style>
 	</head>
 	<body>
+		<button class="floating-button" onclick="location.href='https://havenoverflow.github.io/vbootinator/';"></button>
+
 		<h1 class="title">GBB flag-inator</h1>
 		<div class="column">
 			<div class="topleftbox">
@@ -232,6 +258,7 @@
 				<a href="https://github.com/BinBashBanana/gbbflaginator">GitHub</a>
 			</p>
 			<p class="bottomline">Website made by OlyB</p>
+			<p class="bottomline">Catppuccinified by kxtzownsu</p>
 		</div>
 		<script>
 			const flagsDesc = {

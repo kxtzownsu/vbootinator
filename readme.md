@@ -1,5 +1,8 @@
 # GBB flag-inator
 
-Select and decode GBB flags for ChromeOS
+Select and decode values for Depthcharge/Vboot/TPM values
 
-[binbashbanana.github.io/gbbflaginator](https://binbashbanana.github.io/gbbflaginator/)
+[havenoverflow.github.io/vbootinator](https://havenoverflow.github.io/vbootinator/)
+
+
+###### CREDITS TO [OlyB / BinBashBanana](https://github.com/BinBashBanana) FOR THE ORIGINAL GBBFLAGINATOR
