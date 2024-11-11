@@ -2,7 +2,6 @@
 ## As of 11/10/24 2:28 PM EST
 
 ## in progress
-- fwver generator / decoder
 - fwmp generator / decoder 
 
 - gbb root+reco key generator *
@@ -14,3 +13,4 @@
 ## done
 - gbb flag generator / decoder (ty olyb)
 - kernver generator / decoder
+- fwver generator / decoder

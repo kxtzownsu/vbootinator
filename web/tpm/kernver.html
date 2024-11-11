@@ -1,194 +1,3 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>kernver generator (v1) - vbootinator</title>
-
-    <style>
-
-        body {
-			font-family: sans-serif;
-			background-color: #1e1e2e;
-			color: #cba6f7;
-			position: absolute;
-			width: calc(100vw - 20px);
-			height: calc(100vh - 20px);
-			left: 0px;
-			top: 0px;
-			margin: 0px;
-			padding: 10px;
-			overflow: hidden;
-			display: flex;
-			gap: 10px;
-		}
-        .floating-button {
-			z-index: 1;
-    		position: fixed;
-    		top: 20px;
-    		left: 20px;
-    		background-color: #3c3c5b;
-    		color: #cba6f7;
-    		border: none;
-    		padding: 10px 15px;
-    		border-radius: 20%;
-    		cursor: pointer;
-    		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    		font-size: 1.5rem;
-    		display: flex;
-    		align-items: center;
-    		justify-content: center;
-  		}
-
-  		.floating-button::after {
-    		content: '⬅';
-  			color: #cba6f7;
-  		}
-
-        .title {
-			position: absolute;
-			left: 120px;
-			top: 10px;
-			height: 40px;
-			line-height: 40px;
-			margin: 20px 10px;
-		}
-
-        code {
-			font-family: monospace;
-			background-color: rgba(200, 200, 200, 0.1);
-			color: #f0f0f0;
-			border-radius: 6px;
-			padding: 8px 16px;
-			margin: 5px 10px 5px 0px;
-			display: block;
-			white-space: pre;
-			overflow-x: auto;
-		}
-		</style>
-    </style>
-</head>
-<body>
-    <button class="floating-button" onclick="location.href='https://havenoverflow.github.io/vbootinator/';"></button>
-
-    <h1 class="title">kernver generator (v1)</h1>
-
-    <form id="vb2Form" style="padding-top:80px;">
-        <label for="kernver">kernver: </label>
-        <input type="text" id="kernver" name="kernver" required placeholder="e.g., 0x00010001">
-        <br><br>
-
-        <label for="version">Struct Version:</label>
-        <select id="version" name="version">
-            <option value="0">0 (Old UI, aka Light Mode Recovery)</option>
-            <option value="1">1 (New UI, aka Dark Mode Recovery)</option>
-        </select>
-        <br><br>
-
-        <label>
-            <input type="checkbox" id="rawOutput" name="rawOutput"> Raw Output (output raw hex to file)
-            <br>
-            <sub style="font-size: 10px;">Normal users usually don't need this</sub>
-        </label>
-        <br><br>
-
-        <button type="button" onclick="processForm()">Submit</button>
-
-        <br><br>
-        <p>Output (in hex): <code id="output"></code></p>
-    </form>
-
-    <script>
-        function hexToUint32(hex) {
-            let buffer = new ArrayBuffer(4);
-            let view = new DataView(buffer);
-            view.setUint32(0, parseInt(hex, 16), true);
-            return Array.from(new Uint8Array(buffer));
-        }
-
-        function calculateCRC8(data) {
-            let crc = 0;
-            for (let byte of data) {
-                crc ^= (byte << 8);
-                for (let i = 0; i < 8; i++) {
-                    if (crc & 0x8000) crc ^= (0x1070 << 3);
-                    crc <<= 1;
-                }
-            }
-            return (crc >> 8) & 0xFF;
-        }
-
-        function processForm() {
-            const kernver = document.getElementById('kernver').value;
-            const version = document.getElementById('version').value;
-            const rawOutput = document.getElementById('rawOutput').checked;
-
-            if (!/^(0x)?[0-9a-fA-F]+$/.test(kernver)) {
-                alert("Please enter a valid hexadecimal value for `kernver`.");
-                return;
-            }
-
-            const kvargBytes = hexToUint32(kernver);
-            let structData, dataBytes;
-
-            if (version === "0") {
-                structData = {
-                    struct_version: 0x02,
-                    uid: [0x4c, 0x57, 0x52, 0x47], 
-                    kernver: kvargBytes,
-                    reserved: [0x00, 0x00, 0x00]
-                };
-
-                dataBytes = [
-                    structData.struct_version,
-                    ...structData.uid,
-                    ...structData.kernver,
-                    ...structData.reserved
-                ];
-
-                structData.crc8 = calculateCRC8(dataBytes);
-                dataBytes.push(structData.crc8);
-
-            } else if (version === "1") {
-                const VB2_SHA256_DIGEST_SIZE = 32;
-                structData = {
-                    struct_version: 0x10,
-                    flags: 0,
-                    kernver: kvargBytes,
-                    ec_hash: new Array(VB2_SHA256_DIGEST_SIZE).fill(0)
-                };
-
-                structData.struct_size = 3 + (1 + 4 + VB2_SHA256_DIGEST_SIZE); // 1 for flags, 4 for kernver, VB2_SHA256_DIGEST_SIZE for ec_hash.. Unfortunately I don't know of a way to really do `sizeof(struct)` in JS 
-
-                dataBytes = [
-                    structData.struct_version,
-                    structData.struct_size,
-                    structData.flags,
-                    ...structData.kernver,
-                    ...structData.ec_hash
-                ];
-                
-                // We exclude struct_version and struct_size from the CRC8 calculation
-                // This is what the original Vboot code did. 
-                structData.crc8 = calculateCRC8(dataBytes.slice(2));
-                dataBytes.splice(2, 0, structData.crc8);
-            }
-
-            if (rawOutput) {
-                const blob = new Blob([Uint8Array.from(dataBytes)], { type: "application/octet-stream" });
-                const link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.download = "output.hex";
-                link.click();
-            } else {
-                document.getElementById('output').innerText = dataBytes.map(val => val.toString(16).padStart(2, '0')).join(' ');
-            }
-        }
-    </script>
-</body>
-</html> -->
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -273,7 +82,6 @@
         </label>
         <br><br>
 
-        <!-- Encode Form -->
         <div id="encodeForm">
             <label for="kernver">kernver: </label>
             <input type="text" id="kernver" name="kernver" required placeholder="e.g., 0x00010001">
@@ -296,7 +104,6 @@
             <button type="button" onclick="processForm()">Submit</button>
         </div>
 
-        <!-- Decode Form -->
         <div id="decodeForm" class="hidden">
             <label for="decodeVersion">Struct Version:</label>
             <select id="decodeVersion" name="decodeVersion">
@@ -321,7 +128,6 @@
     </form>
 
     <script>
-        // Toggle Encode/Decode forms based on mode selection
         document.getElementById('encodeMode').addEventListener('click', () => toggleForm(true));
         document.getElementById('decodeMode').addEventListener('click', () => toggleForm(false));
 
@@ -330,7 +136,6 @@
             document.getElementById('decodeForm').classList.toggle('hidden', isEncode);
         }
 
-        // Encoding Functionality (uses existing processForm function)
         function processForm() {
             const kernver = document.getElementById('kernver').value;
             const version = document.getElementById('version').value;
@@ -374,21 +179,15 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    // Read the file as an ArrayBuffer (binary data)
                     const arrayBuffer = e.target.result;
                     const byteArray = new Uint8Array(arrayBuffer);
-
-                    // Convert the byteArray to a hex string for display
                     const hexString = Array.from(byteArray).map(byte => byte.toString(16).padStart(2, '0')).join(' ');
-
-                    // Set the hex string as the input value
                     document.getElementById('hexData').value = hexString;
                 };
-                reader.readAsArrayBuffer(file); // Read the file as binary data
+                reader.readAsArrayBuffer(file);
             }
         }
 
-        // Decoding Functionality
         function decodeData() {
             const version = document.getElementById('decodeVersion').value;
             const hexData = document.getElementById('hexData').value;
@@ -404,38 +203,31 @@
         }
 
         function processDecoding(hexData, version) {
-    // Clean and prepare hex data
-    const hexArray = hexData.trim().split(/\s+/).map(byte => parseInt(byte, 16));
+            const hexArray = hexData.trim().split(/\s+/).map(byte => parseInt(byte, 16));
 
-    let kernver;
-    if (version === "0") {
-        // Expected structure for version 0:
-        // struct_version (1 byte), uid (4 bytes), kernver (4 bytes), reserved (3 bytes), crc8 (1 byte)
-        if (hexArray.length >= 13 && hexArray[0] === 0x02) {  // Verify struct version 0x02 for version 0
-            kernver = hexArray.slice(5, 9);  // kernver is from index 5 to 8
-        } else {
-            alert("Invalid hex structure for version 0.");
-            return;
-        }
-    } else if (version === "1") {
-        // Expected structure for version 1:
-        // struct_version (1 byte), struct_size (1 byte), crc8 (1 byte), flags (1 byte),
-        // kernver (4 bytes), ec_hash (32 bytes)
-        if (hexArray.length >= 39 && hexArray[0] === 0x10) {  // Verify struct version 0x10 for version 1
-            kernver = hexArray.slice(4, 8);  // kernver is from index 4 to 7
-        } else {
-            alert("Invalid hex structure for version 1.");
-            return;
-        }
-    } else {
-        alert("Unsupported struct version selected.");
-        return;
-    }
+            let kernver;
+            if (version === "0") {
+                if (hexArray.length >= 13 && hexArray[0] === 0x02) {  
+                    kernver = hexArray.slice(5, 9); 
+                } else {
+                    alert("Invalid hex structure for version 0.");
+                    return;
+                }
+            } else if (version === "1") {
+                if (hexArray.length >= 39 && hexArray[0] === 0x10) { 
+                    kernver = hexArray.slice(4, 8);
+                } else {
+                    alert("Invalid hex structure for version 1.");
+                    return;
+                }
+            } else {
+                alert("Unsupported struct version selected.");
+                return;
+            }
 
-    // Reverse the kernver array for little-endian formatting
-    const kernverHex = "0x" + kernver.reverse().map(byte => byte.toString(16).padStart(2, '0')).join('');
-    document.getElementById('output').innerText = kernverHex;
-}
+            const kernverHex = "0x" + kernver.reverse().map(byte => byte.toString(16).padStart(2, '0')).join('');
+            document.getElementById('output').innerText = kernverHex;
+        }
 
 
 
