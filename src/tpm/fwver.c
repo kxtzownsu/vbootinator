@@ -15,19 +15,10 @@ uint32_t fwarg;
 #define VB2_SECDATA_FIRMWARE_VERSION 2
 
 struct vb2_secdata_firmware {
-	/* Struct version, for backwards compatibility */
 	uint8_t struct_version;
-
-	/* Flags; see vb2_secdata_firmware_flags */
 	uint8_t flags;
-
-	/* Firmware versions */
-	uint32_t fw_versions;
-
-	/* Reserved for future expansion */
+	uint32_t fwver;
 	uint8_t reserved[3];
-
-	/* CRC; must be last field in struct */
 	uint8_t crc8;
 } __attribute__((packed));
 
@@ -116,7 +107,7 @@ int main(int argc, char *argv[]) {
     } else {
         secdata.flags = 0x0;
     }
-    secdata.fw_versions = fwarg; 
+    secdata.fwver = fwarg; 
     memset(secdata.reserved, 0, sizeof(secdata.reserved));
 
     struct vb2_context ctx;
