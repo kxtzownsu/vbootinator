@@ -52,3 +52,6 @@ fwver:
 
 kernver:
 	$(CC) src/tpm/kernver.c -o build/bin/vbt-tpmkernver $(CFLAGS)
+
+clean:
+	rm -rf build/

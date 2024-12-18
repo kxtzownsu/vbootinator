@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
         printf("--developer-mode - sets the boot mode to developer mode\n");
         printf("--help - shows this message :3\n");
         printf("-=-=-=-=-=-=-\n");
-        printf("KVG was created by kxtzownsu\n");
+        printf("FVG was created by kxtzownsu\n");
         printf("Credits go to Hannah for making the arg parsing system\n");
         exit(0);
     }
