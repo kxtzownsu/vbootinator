@@ -27,6 +27,8 @@
 				overflow: hidden;
 				display: flex;
 				gap: 10px;
+				flex-direction: column;
+				overflow: hidden auto;
 			}
 			
 			a {
@@ -73,6 +75,7 @@
 			.column {
 				overflow-wrap: break-word;
 				min-width: 40vw;
+				max-width: none;
 			}
 			
 			.column:first-of-type {
@@ -80,7 +83,7 @@
 			}
 			
 			.column:last-of-type {
-				overflow: auto;
+				overflow: initial;
 			}
 			
 			.topleftbox {
@@ -143,21 +146,6 @@
 				margin-bottom: 0px;
 			}
 			
-			@media only screen and (max-width: 720px) {
-				body {
-					flex-direction: column;
-					overflow: hidden auto;
-				}
-				
-				.column {
-					max-width: none;
-				}
-			
-				.column:last-of-type {
-					overflow: initial;
-				}
-			}
-
 			.floating-button {
 				z-index: 1;
     			position: fixed;
@@ -208,7 +196,7 @@
 				</div>
 				<div class="flexling" id="decodelist"></div>
 			</div>
-			<p style="mar">
+			<p>
 			credit to olyb for the entire website
 			<br>
 			appleflyer just changed the values
