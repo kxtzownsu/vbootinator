@@ -212,6 +212,8 @@
 				"FWMP_DEV_ENABLE_LEGACY": "Enable Ctrl+L to boot from legacy OS. Same effect as 'crossystem dev_boot_legacy=1'.",
 				"FWMP_DEV_ENABLE_OFFICIAL_ONLY": "Only accept developer images signed with the official Chrome OS key. Same effect as 'crossystem dev_boot_signed_only=1'.",
 				"FWMP_DEV_USE_KEY_HASH": "Only accept developer images signed a specific key. If this is set, the SHA-256 digest of the kernel key data is compared with the digest stored in the FWMP. This enables you to decide what developer images will boot on your device, instead of blindly trusting them all. Particularly handy when combined with FWMP_DEV_ENABLE_USB.",
+				"FWMP_DEV_DISABLE_CCD_UNLOCK": "Disables CCD Unlock",
+				"FWMP_DEV_FIPS_MODE": "FIPS mode",
 			};
 			const flags = Object.keys(flagsDesc);
 			const mask = (1 << flags.length) - 1;
