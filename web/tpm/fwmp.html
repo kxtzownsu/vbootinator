@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="theme-color" content="#383838">
+		<title>FWMP flag-inator</title>
+		<meta name="description" content="Select and decode FWMP flags for ChromeOS">
+		<meta name="og:title" content="FWMP flag-inator">
+		<meta name="og:description" content="Select and decode FWMP flags for ChromeOS">
+		<meta name="og:type" content="website">
+		<meta name="og:url" content="https://github.com/HavenOverflow/VBootinator">
+		<link rel="canonical" href="https://github.com/HavenOverflow/VBootinator">
+		<base target="_blank">
+		<style>
+			body {
+				font-family: sans-serif;
+				background-color: #1e1e2e;
+				color: #cba6f7;
+				position: absolute;
+				width: calc(100vw - 20px);
+				height: calc(100vh - 20px);
+				left: 0px;
+				top: 0px;
+				margin: 0px;
+				padding: 10px;
+				overflow: hidden;
+				display: flex;
+				gap: 10px;
+				flex-direction: column;
+				overflow: hidden auto;
+			}
+			
+			a {
+				color: #74c7ec;
+			}
+			
+			p {
+				font-size: 12pt;
+				line-height: 26px;
+			}
+			
+			.biggertext {
+				font-size: 14pt;
+			}
+			
+			.codeinline {
+				font-family: monospace;
+				background-color: rgba(200, 200, 200, 0.1);
+				border-radius: 4px;
+				padding: 2px 6px;
+			}
+			
+			code {
+				font-family: monospace;
+				background-color: rgba(200, 200, 200, 0.1);
+				color: #f0f0f0;
+				border-radius: 6px;
+				padding: 8px 16px;
+				margin: 5px 10px 5px 0px;
+				display: block;
+				white-space: pre;
+				overflow-x: auto;
+			}
+			
+			.title {
+				position: absolute;
+				left: 120px;
+				top: 10px;
+				height: 40px;
+				line-height: 40px;
+				margin: 20px 10px;
+			}
+			
+			.column {
+				overflow-wrap: break-word;
+				min-width: 40vw;
+				max-width: none;
+			}
+			
+			.column:first-of-type {
+				padding-top: 80px;
+			}
+			
+			.column:last-of-type {
+				overflow: initial;
+			}
+			
+			.topleftbox {
+				overflow: hidden;
+				height: 100px;
+			}
+			
+			.topleftbox h2 {
+				margin: 0px 0px 16px 0px;
+			}
+			
+			body[data-fancybg="inator"] {
+				background-image: url(inator.webp);
+				background-attachment: fixed;
+				background-size: 100% 100%;
+			}
+			
+			.flexoid {
+				display: none;
+				flex-direction: column;
+				gap: 10px;
+				overflow: hidden;
+			}
+			
+			.flexling {
+				overflow: hidden auto;
+				background-color: rgba(0, 0, 0, 0.1);
+			}
+			
+			.flexling>* {
+				margin: 10px 10px 20px 10px;
+			}
+			
+			.flexling>* h2 {
+				margin: 0px 0px 16px 0px;
+			}
+			
+			#modeselect label {
+				display: block;
+				margin: 6px;
+				width: max-content;
+			}
+			
+			#modeselect input {
+				vertical-align: baseline;
+				margin-right: 6px;
+			}
+			
+			#selectflagslist input {
+				transform: scale(1.5);
+				vertical-align: middle;
+				margin-right: 10px;
+			}
+			
+			#inputerror {
+				color: #9974c7;
+			}
+			
+			.bottomline {
+				margin-bottom: 0px;
+			}
+			
+			.floating-button {
+				z-index: 1;
+    			position: fixed;
+    			top: 20px;
+    			left: 20px;
+    			background-color: #3c3c5b;
+    			color: #cba6f7;
+    			border: none;
+    			padding: 10px 15px;
+    			border-radius: 20%;
+    			cursor: pointer;
+    			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    			font-size: 1.5rem;
+    			display: flex;
+    			align-items: center;
+    			justify-content: center;
+  			}
+
+  			.floating-button::after {
+    			content: '⬅';
+  				color: #cba6f7;
+  			}
+		</style>
+	</head>
+	<body>
+		<button class="floating-button" onclick="location.href='https://havenoverflow.github.io/vbootinator/';"></button>
+
+		<h1 class="title">FWMP flag-inator</h1>
+		<div class="column">
+			<div class="topleftbox">
+				<h2>Mode select</h2>
+				<div id="modeselect">
+					<label><input type="radio" name="modeselect" value="selectflags" checked>Select flags</label>
+					<label><input type="radio" name="modeselect" value="decode">Decode flags</label>
+				</div>
+			</div>
+			<div class="flexoid" id="selectflags">
+				<div>
+					<h2>Your FWMP flags: <span id="flagsout" class="codeinline">0x0</span></h2>
+				</div>
+				<div class="flexling" id="selectflagslist"></div>
+			</div>
+			<div class="flexoid" id="decode">
+				<div>
+					<h2>Input your FWMP flags:</h2>
+					<input type="text" id="flagsinput" spellcheck="false" placeholder="0x1234ABCD">
+					<p id="inputerror"></p>
+				</div>
+				<div class="flexling" id="decodelist"></div>
+			</div>
+			<p>
+			credit to olyb for the entire website
+			<br>
+			appleflyer just changed the values
+			<br>
+			catppuccinified by kxtzownsu
+			</p>
+		</div>
+		<script>
+			const flagsDesc = {
+				"FWMP_DEV_DISABLE_BOOT": "Disable developer mode. If this flag is set, booting the device in developer mode will take you straight to the TONORM screen, which asks you to confirm turning developer mode off.",
+				"FWMP_DEV_DISABLE_RECOVERY": "Disable developer features of recovery images.",
+				"FWMP_DEV_ENABLE_USB": "Enable Ctrl+U to boot from USB. Same effect as 'crossystem dev_boot_usb=1'.",
+				"FWMP_DEV_ENABLE_LEGACY": "Enable Ctrl+L to boot from legacy OS. Same effect as 'crossystem dev_boot_legacy=1'.",
+				"FWMP_DEV_ENABLE_OFFICIAL_ONLY": "Only accept developer images signed with the official Chrome OS key. Same effect as 'crossystem dev_boot_signed_only=1'.",
+				"FWMP_DEV_USE_KEY_HASH": "Only accept developer images signed a specific key. If this is set, the SHA-256 digest of the kernel key data is compared with the digest stored in the FWMP. This enables you to decide what developer images will boot on your device, instead of blindly trusting them all. Particularly handy when combined with FWMP_DEV_ENABLE_USB.",
+				"FWMP_DEV_DISABLE_CCD_UNLOCK": "Disables CCD Unlock",
+				"FWMP_DEV_FIPS_MODE": "FIPS mode",
+			};
+			const flags = Object.keys(flagsDesc);
+			const mask = (1 << flags.length) - 1;
+			let flagsSync = 0;
+			const modeselect = document.getElementById("modeselect");
+			const modes = {
+				"selectflags": document.getElementById("selectflags"),
+				"decode": document.getElementById("decode")
+			}
+			const modesArr = Object.keys(modes);
+			const flagsout = document.getElementById("flagsout");
+			const selectflagslist = document.getElementById("selectflagslist");
+			const flagsinput = document.getElementById("flagsinput");
+			const inputerror = document.getElementById("inputerror")
+			const decodelist = document.getElementById("decodelist");
+			const queries = new URLSearchParams(location.search);
+			const presetFlags = queries.get("flags");
+			
+			function updateMode() {
+				var mode = modeselect.querySelector(":checked").value;
+				for (var i = 0; i < modesArr.length; i++) {
+					modes[modesArr[i]].style.display = (modesArr[i] == mode) ? "flex" : "none";
+				}
+			}
+			
+			modeselect.addEventListener("change", updateMode, false);
+			window.addEventListener("load", function() {
+				window.setTimeout(function() {
+					if (presetFlags) {
+						flagsinput.value = presetFlags;
+						modeselect.querySelector("[value=decode]").checked = true;
+					}
+					updateDecodeList(true);
+					updateMode();
+				}, 0);
+			}, false);
+			
+			function getFlagNode(flag, createCheckbox) {
+				var flagContainer = document.createElement("div");
+				var flagLabel = document.createElement("label");
+				var flagName = document.createElement("h2");
+				if (createCheckbox) {
+					var checkbox = document.createElement("input");
+					checkbox.type = "checkbox";
+					checkbox.value = flag;
+					flagName.appendChild(checkbox);
+				}
+				var flagSplit = flag.split("_");
+				for (var i = 0; i < flagSplit.length - 1; i++) {
+					flagName.appendChild(document.createTextNode(flagSplit[i] + "_"));
+					flagName.appendChild(document.createElement("wbr"));
+				}
+				flagName.appendChild(document.createTextNode(flagSplit.slice(-1)[0]));
+				flagLabel.appendChild(flagName);
+				flagContainer.appendChild(flagLabel);
+				flagContainer.appendChild(document.createTextNode(flagsDesc[flag]));
+				return flagContainer;
+			}
+			
+			function updateBackground(e) {
+				if (e.ctrlKey && e.code == "KeyI") {
+					e.preventDefault();
+					if (document.body.dataset.fancybg) {
+						document.body.dataset.fancybg = "";
+					} else {
+						document.body.dataset.fancybg = "inator";
+					}
+				}
+			}
+			document.addEventListener("keydown", updateBackground, false);
+			
+			for (var i = 0; i < flags.length; i++) {
+				selectflagslist.appendChild(getFlagNode(flags[i], true));
+			}
+			
+			function resetSelectFlags() {
+				var boxes = Array.from(selectflagslist.querySelectorAll("input"));
+				for (var i = 0; i < boxes.length; i++) {
+					boxes[i].checked = false;
+				}
+				flagsout.textContent = "0x0";
+			}
+			
+			function updateFlagsOut() {
+				var outFlags = 0;
+				var checks = Array.from(selectflagslist.querySelectorAll(":checked"));
+				for (var i = 0; i < checks.length; i++) {
+					var index = flags.indexOf(checks[i].value);
+					if (index < 0) continue;
+					outFlags |= 1 << index;
+				}
+				var outFlagsText = "0x" + outFlags.toString(16);
+				flagsout.textContent = outFlagsText;
+				flagsinput.value = outFlags ? outFlagsText : "";
+				updateDecodeList(null);
+			}
+			selectflagslist.addEventListener("change", updateFlagsOut, false);
+			
+			function updateDecodeList(e) {
+				decodelist.innerHTML = "";
+				if (!flagsinput.value.startsWith("0x")) {
+					inputerror.textContent = flagsinput.value ? "Error: malformed input" : "";
+					resetSelectFlags();
+					return;
+				}
+				inputFlags = parseInt(flagsinput.value);
+				if (inputFlags > mask) {
+					inputerror.textContent = "Error: input too large";
+					resetSelectFlags();
+					return;
+				}
+				inputerror.textContent = "";
+				
+				for (var i = 0; i < flags.length; i++) {
+					if (inputFlags & (1 << i)) decodelist.appendChild(getFlagNode(flags[i]));
+				}
+				
+				if (e) {
+					var boxes = Array.from(selectflagslist.querySelectorAll("input"));
+					for (var i = 0; i < boxes.length; i++) {
+						var index = flags.indexOf(boxes[i].value);
+						if (index < 0) continue;
+						boxes[i].checked = !!(inputFlags & (1 << index));
+					}
+					flagsout.textContent = "0x" + inputFlags.toString(16);
+				}
+			}
+			flagsinput.addEventListener("keyup", updateDecodeList, false);
+		</script>
+	</body>
+</html>
