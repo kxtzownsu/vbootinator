@@ -3,7 +3,7 @@
 Select and decode values for Depthcharge/Vboot/TPM values
 
 ## Website
-[https://havenoverflow.github.io/vbootinator](https://havenoverflow.github.io/vbootinator/)
+[https://vbootinator.havenoverflow.dev](https://vbootinator.havenoverflow.dev)
 
 ## Directory Guide
 
