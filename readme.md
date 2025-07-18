@@ -3,7 +3,7 @@
 Select and decode values for Depthcharge/Vboot/TPM values
 
 ## Website
-[https://vbootinator.havenoverflow.dev](https://vbootinator.havenoverflow.dev)
+[https://vbootinator.kxtz.dev](https://vbootinator.kxtz.dev)
 
 ## Directory Guide
 
@@ -24,5 +24,4 @@ Run `sudo make install`, `sudo` can be swapped out with `doas` if needed. It can
 ## Credits: 
 - kxtzownsu - writing vbootinator web & C
 - OlyB - This project wouldn't exist without him. He wrote all of GBB Flag-inator by himself. Major credits to him.
-- HavenOverflow - mental support & allowing me to release under their name
 - Chromium Code Search - not making me have to download the vboot_reference source code to get the structs for everything
